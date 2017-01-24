@@ -11,5 +11,10 @@ This helps change that.  By appending a voting system after each tweet,
 you can privately keep track of how many down and upvotes you have given
 to the quality of each users tweets.
 
+<img src="https://raw.githubusercontent.com/kristopolous/tweetvote/master/tweet.png">
+
 Then you can use whatever threshold score you want to draw an assessment
 of what kind of action you'd like to take.
+
+The votes are stored in the localStorage via GM_set/getValue and don't need
+access to any remote server.
