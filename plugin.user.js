@@ -52,7 +52,14 @@ function decorate() {
     
     // Now we need to contextualize the vote by finding the user that
     // posted this thing.
-    var user = container.querySelector('.js-user-profile-link').dataset.userId;
+    var user = container.querySelector('.js-user-profile-link');
+    
+    // Sometimes you can get "suggested" tweets which don't have 
+    // this data.
+    if(!user) {
+      return;
+    }
+    user = user.dataset.userId;
     
     // We create the user interface based on that
     var stats = document.createElement('span');
@@ -93,13 +100,14 @@ function decorate() {
 var un = 'a3b3e8fb256e982cb3215d09f996', 
     style = document.createElement('style');
 
-style.innerHTML= ["." + un + " { padding: 0 10px; margin: 0 5px; color: #fff }", 
-                  "." + un + ":hover { background: #000 !important }"
-                 ].join("\n");
+style.innerHTML= [
+  "." + un + " { padding: 0 10px; margin: 0 5px; color: #fff }", 
+  "." + un + ":hover { background: #000 !important }"
+].join("\n");
+
 document.body.appendChild(style);
 
 // we do this on load and then because
 // of infinite scroll, every n seconds
 decorate();
 
-setInterval(decorate, 5 * 1000);
