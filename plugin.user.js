@@ -20,7 +20,13 @@ function vote(user, dir, stats) {
   }
   
   // Otherwise we just use the values to display things.
-  stats.innerHTML = '+' + list[0] + ' -' + list[1];
+  
+  // total number of posts since first seen
+  unsafeWindow.console.log('here>', GM_getValue('.posts:' + user), GM_getValue('.first:' + user));
+  var perc = [Math.round( (GM_getValue('.posts:' + user) * 1000) / 
+    Math.max(ix - GM_getValue('.first:' + user), 1)
+  ), GM_getValue('.posts:' + user)].join(':');
+  stats.innerHTML = '+' + list[0] + ' -' + list[1] + ' (' + perc + ')';
 }
 
 function noads(){
@@ -32,6 +38,7 @@ function noads(){
     row.className += "-done";
   })
 }
+
 function decorate() {
   noads();
   // We get all the stream-items which are effectively all the tweets
@@ -54,13 +61,24 @@ function decorate() {
     // posted this thing.
     var user = container.querySelector('.js-user-profile-link');
     
+   
     // Sometimes you can get "suggested" tweets which don't have 
     // this data.
     if(!user) {
       return;
     }
     user = user.dataset.userId;
-    
+     // Do some frequency distribution.
+    ix++;
+    var first_seen = GM_getValue('.first:' + user); 
+    if(!first_seen) {
+      GM_setValue('.first:' + user, ix);
+      GM_setValue('.posts:' + user, 0);
+    } else {
+      GM_setValue('.posts:' + user, GM_getValue('.posts:' + user) + 1);
+    }
+
+
     // We create the user interface based on that
     var stats = document.createElement('span');
     var down = document.createElement('span');
@@ -93,11 +111,13 @@ function decorate() {
     vote(user, false, stats);
     
     node.seen = true;
+    GM_setValue('.counter', ix);
   });
 }
 
 // A unique id to apply the stylesheet under
 var un = 'a3b3e8fb256e982cb3215d09f996', 
+    ix = GM_getValue('.counter') || 0,
     style = document.createElement('style');
 
 style.innerHTML= [
@@ -109,5 +129,6 @@ document.body.appendChild(style);
 
 // we do this on load and then because
 // of infinite scroll, every n seconds
+setInterval( decorate, 1000);
 decorate();
 
