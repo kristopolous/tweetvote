@@ -22,11 +22,67 @@ function vote(user, dir, stats) {
   // Otherwise we just use the values to display things.
   
   // total number of posts since first seen
-  unsafeWindow.console.log('here>', GM_getValue('.posts:' + user), GM_getValue('.first:' + user));
   var perc = [Math.round( (GM_getValue('.posts:' + user) * 1000) / 
     Math.max(ix - GM_getValue('.first:' + user), 1)
   ), GM_getValue('.posts:' + user)].join(':');
   stats.innerHTML = '+' + list[0] + ' -' + list[1] + ' (' + perc + ')';
+}
+
+function upto(what, klass) {
+  if(what.className.search(klass) > -1) { 
+    return what;
+  }
+  if(what.parentNode) {
+    return upto(what.parentNode, klass);
+  }
+}
+
+function norepeat() {
+  if(window.location.toString() === 'https://twitter.com/') {
+    norepeat.image();
+    norepeat.video();
+  }
+}
+norepeat.hide = function(name, node) {
+  if(name) {
+    var isSeen = GM_getValue('.i:' + name); 
+    unsafeWindow.console.log(name, isSeen);
+    if(!isSeen) {
+      GM_setValue('.i:' + name, 1);
+    } else {
+      var parent = upto(node, 'tweet');
+      if(parent) {
+        parent.parentNode.removeChild(parent);
+      }
+    }
+  }
+}
+
+norepeat.video = function() {
+  var all = document.querySelectorAll('.PlayableMedia-player');
+  all.forEach(function(node) {
+    if(node.hasAttribute('visited')) {
+      return;
+    }
+    node.setAttribute('visited', '1');
+    var url = node.style.backgroundImage;
+    if(url.search(/pbs.twimg.com/) > -1) {
+      norepeat.hide(url.split('/').pop().split('.').shift(), node);
+    }
+  });
+}
+norepeat.image = function() {
+  var all = document.querySelectorAll('.js-adaptive-photo');
+  all.forEach(function(node) {
+    if(node.hasAttribute('visited')) {
+      return;
+    }
+    node.setAttribute('visited', '1');
+    var url = node.getAttribute('data-image-url');
+    if(url.search(/pbs.twimg.com/) > -1) {
+      norepeat.hide(url.split('/').pop().split('.').shift(), node);
+    }
+  });
 }
 
 function noads(){
@@ -41,6 +97,7 @@ function noads(){
 
 function decorate() {
   noads();
+  norepeat();
   // We get all the stream-items which are effectively all the tweets
   var all = document.querySelectorAll('.stream-item');
   all.forEach(function(node) {
