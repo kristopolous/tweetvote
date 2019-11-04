@@ -14,7 +14,7 @@ function vote(user, dir, stats) {
   if(dir) {
     list = list.map(function(row){
       return parseInt(row, 10);
-    })
+    });
     list[+(dir === 'down')]++;
     GM_setValue(user, list.join(','));
   }
@@ -26,6 +26,14 @@ function vote(user, dir, stats) {
     Math.max(ix - GM_getValue('.first:' + user), 1)
   ), GM_getValue('.posts:' + user)].join(':');
   stats.innerHTML = '+' + list[0] + ' -' + list[1] + ' (' + perc + ')';
+}
+
+function up(count, what) {
+  while(count > 0) {
+    what = what.parentNode;
+    count --;
+  }
+  return what;
 }
 
 function upto(what, klass) {
@@ -56,7 +64,7 @@ norepeat.hide = function(name, node) {
       }
     }
   }
-}
+};
 
 norepeat.video = function() {
   var all = document.querySelectorAll('.PlayableMedia-player');
@@ -70,7 +78,7 @@ norepeat.video = function() {
       norepeat.hide(url.split('/').pop().split('.').shift(), node);
     }
   });
-}
+};
 norepeat.image = function() {
   var all = document.querySelectorAll('.js-adaptive-photo');
   all.forEach(function(node) {
@@ -83,7 +91,7 @@ norepeat.image = function() {
       norepeat.hide(url.split('/').pop().split('.').shift(), node);
     }
   });
-}
+};
 
 function noads(){
   // this is a little add-on to hide the ads.
@@ -92,12 +100,12 @@ function noads(){
     row.parentNode.parentNode.parentNode.parentNode.style.display = 'none';
     // for slight effeciency, let's make sure we don't hit these up every time.
     row.className += "-done";
-  })
+  });
 }
 
 function decorate() {
   noads();
-  norepeat();
+  //norepeat();
   // We get all the stream-items which are effectively all the tweets
   var all = document.querySelectorAll('.stream-item');
   all.forEach(function(node) {
@@ -150,14 +158,14 @@ function decorate() {
     up.onclick = function(e) {
       vote(user, 'up', stats);
       e.stopPropagation();
-    }
+    };
 
     down.innerHTML = '&#9660;';
     down.style.background = 'red';
     down.onclick = function(e) {
       vote(user, 'down', stats);
       e.stopPropagation();
-    }
+    };
 
     container.appendChild(up);
     container.appendChild(down);
