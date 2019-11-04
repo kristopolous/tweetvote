@@ -182,6 +182,7 @@ function decorate() {
 
 // A unique id to apply the stylesheet under
 var un = 'a3b3e8fb256e982cb3215d09f996', 
+    interacted = false,
     ix = GM_getValue('.counter') || 0,
     style = document.createElement('style');
 
@@ -191,6 +192,23 @@ style.innerHTML= [
 ].join("\n");
 
 document.body.appendChild(style);
+
+document.body.addEventListener('click', function() {
+  interacted = true;
+  unsafeWindow.console.log('toggle', interacted);
+}, true);
+
+window.addEventListener('unload', function() {
+  unsafeWindow.console.log(interacted);
+  if(interacted === false) {
+    var user = window.location.toString().split('/')[3];
+    if(user) {
+      var noload = GM_getValue('.noload') || '';
+      GM_setValue('.noload', noload + ',' + user);
+    }
+  }
+});
+
 
 // we do this on load and then because
 // of infinite scroll, every n seconds
